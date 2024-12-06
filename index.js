@@ -26,6 +26,8 @@ async function run() {
       .db("equipmentDB")
       .collection("equipment");
     const userCollection = client.db("equipmentDB").collection("users");
+    // const sortCollection = client.db.("equipmentDB").find().sort( { "price": 1 } )
+
 
     // db.equipmentCollection.find(query).limit(6);
 
@@ -37,7 +39,12 @@ async function run() {
     });
 
     app.get("/equipment", async (req, res) => {
-      const cursor = equipmentCollection.find();
+     
+
+      const cursor = equipmentCollection.find().sort( { "price": 1 } )
+      ;
+      // const sortDirection = req.query.sort ===  1 ;
+      // const cursor = equipmentCollection.find().sort({ price: sortDirection });
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -87,21 +94,21 @@ async function run() {
       res.send(result)
     })
 
-    // app.put('/users/:id', async(req, res) =>{
-    //   const id = req.params.id;
-    //   const updatedUser = req.body;
-    // const filter = {_id: new ObjectId(id)}
-    // const option = {upsert: true}
-    // const updatePerson = {
-    //   $set: {
-    //     name: user.name,
-    //     email: user.email
-    //   }
-    // }
-    // const result = await userCollection.updateOne(filter,updatePerson, option)
-    // res.send(result);
+    app.put('/users/:id', async(req, res) =>{
+      const id = req.params.id;
+      const updatedUser = req.body;
+    const filter = {_id: new ObjectId(id)}
+    const option = {upsert: true}
+    const updatePerson = {
+      $set: {
+        name: user.name,
+        email: user.email
+      }
+    }
+    const result = await userCollection.updateOne(filter,updatePerson, option)
+    res.send(result);
 
-    // })
+    })
 
 
 
