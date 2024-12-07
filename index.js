@@ -25,28 +25,29 @@ async function run() {
     const equipmentCollection = client
       .db("equipmentDB")
       .collection("equipment");
-    const userCollection = client.db("equipmentDB").collection("users");
+    // const userCollection = client.db("equipmentDB").collection("users");
     // const sortCollection = client.db.("equipmentDB").find().sort( { "price": 1 } )
 
+    const sortCollection = client
+      .db("equipmentDB")
+      .collection("equipment")
+      .find()
+      .sort({ price: 1 });
 
     // db.equipmentCollection.find(query).limit(6);
 
     app.post("/equipment", async (req, res) => {
       const newEquipment = req.body;
-      // console.log(newEquipment);
+      
       const result = await equipmentCollection.insertOne(newEquipment);
       res.send(result);
     });
 
     app.get("/equipment", async (req, res) => {
-     
-
-      const cursor = equipmentCollection.find().sort( { "price": 1 } )
-      ;
-      // const sortDirection = req.query.sort ===  1 ;
-      // const cursor = equipmentCollection.find().sort({ price: sortDirection });
-      const result = await cursor.toArray();
-      res.send(result);
+      const sortDirection = parseInt(req.query.sort) || 1;
+    const cursor = equipmentCollection.find().sort({ price: sortDirection });
+    const result = await cursor.toArray();
+    res.send(result);
     });
 
     app.delete("/equipment/:id", async (req, res) => {
@@ -64,62 +65,62 @@ async function run() {
 
     //USER DATA:
 
-     app.post('/users', async(req,res) =>{
+    app.post("/users", async (req, res) => {
       const newUser = req.body;
-      const result = await userCollection.insertOne(newUser)
+      const result = await userCollection.insertOne(newUser);
       res.send(result);
-     })
-     app.get('/users', async(req,res) =>{
+    });
+    app.get("/users", async (req, res) => {
       const cursor = userCollection.find();
-      const result = await cursor.toArray()
+      const result = await cursor.toArray();
       res.send(result);
-     })
+    });
 
-     app.delete('/users/:id', async(req,res) =>{
+    app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
-      const result = await userCollection.deleteOne(query)
-      res.send(result)
-     })
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
 
-    app.patch('/users', async(req,res) =>{
+    app.patch("/users", async (req, res) => {
       const email = req.body.email;
-      const filter = {email};
+      const filter = { email };
       const updatedDoc = {
         $set: {
-          lastSignInTime: req.body?.lastSignInTime
-        }
-      }
-      const result = await userCollection.updateOne(filter,updatedDoc)
-      res.send(result)
-    })
+          lastSignInTime: req.body?.lastSignInTime,
+        },
+      };
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
 
-    app.put('/equipment/:id', async(req, res) =>{
+    app.put("/equipment/:id", async (req, res) => {
       const id = req.params.id;
       const updatedUser = req.body;
-    const filter = {_id: new ObjectId(id)}
-    const option = {upsert: true}
-    const updatePerson = {
-      $set: {
-        rating: updatedUser.rating,
-        price: updatedUser.price,
-        customization: updatedUser.customization,
-        time: updatedUser.time,
-        quantity: updatedUser.quantity,
-        category: updatedUser.category,
-        details: updatedUser.details,
-        photo: updatedUser.photo,
-      }
-    }
-    const result = await equipmentCollection.updateOne(filter,updatePerson, option)
-    res.send(result);
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updatePerson = {
+        $set: {
+          rating: updatedUser.rating,
+          price: updatedUser.price,
+          customization: updatedUser.customization,
+          time: updatedUser.time,
+          quantity: updatedUser.quantity,
+          category: updatedUser.category,
+          details: updatedUser.details,
+          photo: updatedUser.photo,
+        },
+      };
+      const result = await equipmentCollection.updateOne(
+        filter,
+        updatePerson,
+        option
+      );
+      res.send(result);
+    });
 
-    })
-
-
-
-
-         //END UserData
+    //END UserData
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
