@@ -90,22 +90,28 @@ async function run() {
           lastSignInTime: req.body?.lastSignInTime
         }
       }
-      const result = await userCollection.updateOne(filter.updatedDoc)
+      const result = await userCollection.updateOne(filter,updatedDoc)
       res.send(result)
     })
 
-    app.put('/users/:id', async(req, res) =>{
+    app.put('/equipment/:id', async(req, res) =>{
       const id = req.params.id;
       const updatedUser = req.body;
     const filter = {_id: new ObjectId(id)}
     const option = {upsert: true}
     const updatePerson = {
       $set: {
-        name: user.name,
-        email: user.email
+        rating: updatedUser.rating,
+        price: updatedUser.price,
+        customization: updatedUser.customization,
+        time: updatedUser.time,
+        quantity: updatedUser.quantity,
+        category: updatedUser.category,
+        details: updatedUser.details,
+        photo: updatedUser.photo,
       }
     }
-    const result = await userCollection.updateOne(filter,updatePerson, option)
+    const result = await equipmentCollection.updateOne(filter,updatePerson, option)
     res.send(result);
 
     })
