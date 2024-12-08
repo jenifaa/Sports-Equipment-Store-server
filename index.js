@@ -38,12 +38,12 @@ async function run() {
       try {
         const cursor = equipmentCollection
           .find()
-          .sort({ price: sortDirection });
+          .sort({ price: sortDirection }).limit(6);
         const result = await cursor.toArray();
         res.send(result);
       } catch (error) {
-        console.error("Error fetching sorted equipment:", error);
-        res.status(500).send({ error: "Failed to fetch sorted equipment" });
+        console.error("Error:", error);
+        res.status(500).send({ error: "Failed to fetch" });
       }
     });
     app.delete("/equipment/:id", async (req, res) => {
