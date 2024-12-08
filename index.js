@@ -21,35 +21,31 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     const equipmentCollection = client
       .db("equipmentDB")
       .collection("equipment");
-    // const userCollection = client.db("equipmentDB").collection("users");
-    // const sortCollection = client.db.("equipmentDB").find().sort( { "price": 1 } )
-
-    const sortCollection = client
-      .db("equipmentDB")
-      .collection("equipment")
-      .find()
-      .sort({ price: 1 });
-
-    // db.equipmentCollection.find(query).limit(6);
+    const userCollection = client.db("equipmentDB").collection("users");
 
     app.post("/equipment", async (req, res) => {
       const newEquipment = req.body;
-      
+
       const result = await equipmentCollection.insertOne(newEquipment);
       res.send(result);
     });
 
     app.get("/equipment", async (req, res) => {
       const sortDirection = parseInt(req.query.sort) || 1;
-    const cursor = equipmentCollection.find().sort({ price: sortDirection });
-    const result = await cursor.toArray();
-    res.send(result);
+      try {
+        const cursor = equipmentCollection
+          .find()
+          .sort({ price: sortDirection });
+        const result = await cursor.toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching sorted equipment:", error);
+        res.status(500).send({ error: "Failed to fetch sorted equipment" });
+      }
     });
-
     app.delete("/equipment/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -62,8 +58,6 @@ async function run() {
       const result = await equipmentCollection.findOne(query);
       res.send(result);
     });
-
-    //USER DATA:
 
     app.post("/users", async (req, res) => {
       const newUser = req.body;
@@ -120,15 +114,10 @@ async function run() {
       res.send(result);
     });
 
-    //END UserData
-
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // Ensures that the client will close when you finish/error
   }
 }
 run().catch(console.dir);
