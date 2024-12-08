@@ -33,13 +33,34 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/homeEquipment", async (req, res) => {
+      const sortDirection = parseInt(req.query.sort) || 1;
+      try {
+        const cursor = equipmentCollection.find();
+
+        let result = await cursor.toArray();
+        result = result
+          .sort((a, b) => {
+            return Number(a.price) - Number(b.price);
+          })
+          .slice(0, 6);
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send({ error: "Failed to fetch" });
+      }
+    });
     app.get("/equipment", async (req, res) => {
       const sortDirection = parseInt(req.query.sort) || 1;
       try {
-        const cursor = equipmentCollection
-          .find()
-          .sort({ price: sortDirection }).limit(6);
-        const result = await cursor.toArray();
+        const cursor = equipmentCollection.find();
+
+        let result = await cursor.toArray();
+        result = result.sort((a, b) => {
+          return Number(a.price) - Number(b.price);
+        });
+
         res.send(result);
       } catch (error) {
         console.error("Error:", error);
