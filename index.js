@@ -25,6 +25,7 @@ async function run() {
       .db("equipmentDB")
       .collection("equipment");
     const userCollection = client.db("equipmentDB").collection("users");
+    const cartCollection = client.db("equipmentDB").collection("cart");
 
     app.post("/equipment", async (req, res) => {
       const newEquipment = req.body;
@@ -34,16 +35,10 @@ async function run() {
     });
 
     app.get("/homeEquipment", async (req, res) => {
-      const sortDirection = parseInt(req.query.sort) || 1;
       try {
-        const cursor = equipmentCollection.find();
+        const cursor = equipmentCollection.find().sort({ _id: -1 }).limit(6);
 
-        let result = await cursor.toArray();
-        result = result
-          .sort((a, b) => {
-            return Number(a.price) - Number(b.price);
-          })
-          .slice(0, 6);
+        const result = await cursor.toArray();
 
         res.send(result);
       } catch (error) {
@@ -52,14 +47,13 @@ async function run() {
       }
     });
     app.get("/equipment", async (req, res) => {
-      const sortDirection = parseInt(req.query.sort) || 1;
+      const sortDirection = req.query.sort === "desc" ? -1 : 1;
       try {
-        const cursor = equipmentCollection.find();
+        const result = await equipmentCollection
+          .find()
+          .sort({ price: sortDirection })
 
-        let result = await cursor.toArray();
-        result = result.sort((a, b) => {
-          return Number(a.price) - Number(b.price);
-        });
+          .toArray();
 
         res.send(result);
       } catch (error) {
@@ -83,6 +77,16 @@ async function run() {
     app.post("/users", async (req, res) => {
       const newUser = req.body;
       const result = await userCollection.insertOne(newUser);
+      res.send(result);
+    });
+    app.post("/cart", async (req, res) => {
+      const newCart = req.body;
+      const result = await cartCollection.insertOne(newCart);
+      res.send(result);
+    });
+    app.get("/cart", async (req, res) => {
+      const cursor = cartCollection.find();
+      const result = await cursor.toArray();
       res.send(result);
     });
     app.get("/users", async (req, res) => {
