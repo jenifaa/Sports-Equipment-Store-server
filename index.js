@@ -47,13 +47,14 @@ async function run() {
       }
     });
     app.get("/equipment", async (req, res) => {
-      const sortDirection = req.query.sort === "desc" ? -1 : 1;
+      const sortDirection = parseInt(req.query.sort) || 1;
       try {
-        const result = await equipmentCollection
-          .find()
-          .sort({ price: sortDirection })
+        const cursor = equipmentCollection.find();
 
-          .toArray();
+        let result = await cursor.toArray();
+        result = result.sort((a, b) => {
+          return Number(a.price) - Number(b.price);
+        });
 
         res.send(result);
       } catch (error) {
@@ -73,6 +74,28 @@ async function run() {
       const result = await equipmentCollection.findOne(query);
       res.send(result);
     });
+    app.get("/myEquipment", async (req, res) => {
+      const email = req.query.email;
+      let query = {};
+      if (email) {
+        query = { userEmail: email };
+      }
+      const cursor = equipmentCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // app.get("/myEquipment", async (req, res) => {
+    //   const email = req.query.email;
+    //   const query = { useEmail: email };
+    //   if (req.user.email !== req.query.email) {
+    //     return res.status(403).send({ message: "Forbidden" });
+    //   }
+
+    //   const result = await equipmentCollection.find(query).toArray();
+
+    //   res.send(result);
+    // });
 
     app.post("/users", async (req, res) => {
       const newUser = req.body;
