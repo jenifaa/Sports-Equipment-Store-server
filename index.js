@@ -85,17 +85,7 @@ async function run() {
       res.send(result);
     });
 
-    // app.get("/myEquipment", async (req, res) => {
-    //   const email = req.query.email;
-    //   const query = { useEmail: email };
-    //   if (req.user.email !== req.query.email) {
-    //     return res.status(403).send({ message: "Forbidden" });
-    //   }
-
-    //   const result = await equipmentCollection.find(query).toArray();
-
-    //   res.send(result);
-    // });
+    
 
     app.post("/users", async (req, res) => {
       const newUser = req.body;
